@@ -1,0 +1,107 @@
+{% extends "base.html" %}
+{% block title %}Admin — Book Lovers Club{% endblock %}
+
+{% block content %}
+<section class="page-hero section-lavender">
+  <div class="container">
+    <h1 class="page-title">⚙️ Admin Panel</h1>
+    <p class="page-sub">Manage events and members.</p>
+  </div>
+</section>
+
+<section class="section">
+  <div class="container">
+
+    <!-- Create Event Form -->
+    <div class="card admin-form-card">
+      <h2 class="card-title">➕ Create Event</h2>
+      <form method="post" action="/admin/events" class="admin-event-form">
+        <div class="form-row">
+          <div class="form-group form-group-wide">
+            <label>Title *</label>
+            <input type="text" name="title" class="input-field" required placeholder="Monthly Meet — June" />
+          </div>
+          <div class="form-group">
+            <label>Date *</label>
+            <input type="date" name="date" class="input-field" required value="{{ today }}" />
+          </div>
+          <div class="form-group">
+            <label>Time</label>
+            <input type="time" name="time" class="input-field" />
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label>Location</label>
+            <input type="text" name="location" class="input-field" placeholder="The Quiet Storm, Pittsburgh" />
+          </div>
+          <div class="form-group">
+            <label>Book / Theme</label>
+            <input type="text" name="book_theme" class="input-field" placeholder="Any genre welcome!" />
+          </div>
+        </div>
+        <div class="form-group">
+          <label>Description</label>
+          <textarea name="description" class="textarea" rows="3" placeholder="Tell us about this meet…"></textarea>
+        </div>
+        <button type="submit" class="btn btn-primary">Create Event 🗓️</button>
+      </form>
+    </div>
+
+    <!-- Events List -->
+    <div class="card mt-2">
+      <h2 class="card-title">📅 All Events ({{ events | length }})</h2>
+      {% if events %}
+        <div class="admin-event-list">
+          {% for event in events %}
+            <div class="admin-event-row">
+              <div class="admin-event-info">
+                <strong>{{ event.title }}</strong>
+                <span class="admin-meta">{{ event.date }}{% if event.time %} · {{ event.time }}{% endif %}{% if event.location %} · {{ event.location }}{% endif %}</span>
+                <span class="rsvp-count-small">{{ event.rsvps | length }} RSVP{{ 's' if event.rsvps | length != 1 }}</span>
+              </div>
+              <div class="admin-event-actions">
+                <a href="/events/{{ event.id }}" class="btn btn-outline btn-sm">View</a>
+                <form method="post" action="/admin/events/{{ event.id }}/delete" style="display:inline;">
+                  <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('Delete this event?')">Delete</button>
+                </form>
+              </div>
+            </div>
+          {% endfor %}
+        </div>
+      {% else %}
+        <p class="empty-msg">No events yet. Create one above! 🌱</p>
+      {% endif %}
+    </div>
+
+    <!-- Members List -->
+    <div class="card mt-2">
+      <h2 class="card-title">👥 Members ({{ users | length }})</h2>
+      <div class="admin-user-list">
+        {% for member in users %}
+          <div class="admin-user-row">
+            <div class="admin-user-info">
+              <strong>{{ member.username }}</strong>
+              <span class="admin-meta">{{ member.email }}</span>
+              <span class="admin-meta">Joined {{ member.created_at.strftime('%b %Y') }}</span>
+              {% if member.is_admin %}<span class="admin-badge">⚙️ Admin</span>{% endif %}
+            </div>
+            <div class="admin-user-actions">
+              {% if member.id != user.id %}
+                <form method="post" action="/admin/users/{{ member.id }}/toggle-admin" style="display:inline;">
+                  <button type="submit" class="btn btn-outline btn-sm">
+                    {% if member.is_admin %}Remove Admin{% else %}Make Admin{% endif %}
+                  </button>
+                </form>
+              {% else %}
+                <span class="you-badge">You</span>
+              {% endif %}
+            </div>
+          </div>
+        {% endfor %}
+      </div>
+    </div>
+
+  </div>
+</section>
+{% endblock %}

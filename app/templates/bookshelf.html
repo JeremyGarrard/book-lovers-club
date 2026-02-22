@@ -1,0 +1,132 @@
+{% extends "base.html" %}
+{% block title %}Community Bookshelf — Book Lovers Club{% endblock %}
+
+{% block content %}
+<section class="page-hero section-yellow">
+  <div class="container">
+    <h1 class="page-title">📚 Community Bookshelf</h1>
+    <p class="page-sub">What we're all reading right now — we love to know!</p>
+  </div>
+</section>
+
+<section class="section">
+  <div class="container">
+
+    <!-- Add a book (members only) -->
+    {% if user %}
+      <div class="card add-book-card">
+        <h2 class="card-title">➕ Add Your Book</h2>
+
+        <!-- Search bar -->
+        <div class="book-search-bar">
+          <input
+            type="text"
+            id="book-search-input"
+            placeholder="Search Open Library… (e.g. The Alchemist)"
+            class="input-field"
+          />
+          <button onclick="searchBooks()" class="btn btn-outline">Search 🔍</button>
+        </div>
+        <div id="search-results" class="search-results" style="display:none;"></div>
+
+        <!-- Manual / post-search form -->
+        <form method="post" action="/bookshelf/add" id="add-book-form" class="add-book-form">
+          <input type="hidden" name="ol_key" id="f-ol-key" />
+          <input type="hidden" name="cover_url" id="f-cover-url" />
+          <div class="form-row">
+            <div class="form-group">
+              <label>Title *</label>
+              <input type="text" name="title" id="f-title" class="input-field" required placeholder="Book title" />
+            </div>
+            <div class="form-group">
+              <label>Author</label>
+              <input type="text" name="author" id="f-author" class="input-field" placeholder="Author name" />
+            </div>
+          </div>
+          <div class="form-group">
+            <label>Your notes (optional)</label>
+            <textarea name="notes" class="textarea" rows="2" placeholder="Why are you reading it? Quick thoughts?"></textarea>
+          </div>
+          <button type="submit" class="btn btn-primary">Add to Shelf 📚</button>
+        </form>
+      </div>
+    {% else %}
+      <p class="empty-msg text-center"><a href="/login">Log in</a> to add your book to the shelf! 🌸</p>
+    {% endif %}
+
+    <!-- Bookshelf grid -->
+    <h2 class="section-title mt-3">What the Club is Reading 📖</h2>
+    {% if books %}
+      <div class="book-grid">
+        {% for book in books %}
+          <div class="book-card">
+            {% if book.cover_url %}
+              <img src="{{ book.cover_url }}" alt="{{ book.title }}" class="book-cover" />
+            {% else %}
+              <div class="book-cover-placeholder">📖</div>
+            {% endif %}
+            <div class="book-info">
+              <h3 class="book-title">{{ book.title }}</h3>
+              {% if book.author %}<p class="book-author">by {{ book.author }}</p>{% endif %}
+              <p class="book-reader">🌸 {{ book.user.username }}</p>
+              {% if book.notes %}<p class="book-notes">{{ book.notes }}</p>{% endif %}
+            </div>
+            {% if user and (user.id == book.user_id or user.is_admin) %}
+              <form method="post" action="/bookshelf/{{ book.id }}/delete" class="delete-form">
+                <button type="submit" class="btn-delete" title="Remove">✕</button>
+              </form>
+            {% endif %}
+          </div>
+        {% endfor %}
+      </div>
+    {% else %}
+      <p class="empty-msg">The shelf is empty — add your book! 🌱</p>
+    {% endif %}
+  </div>
+</section>
+{% endblock %}
+
+{% block scripts %}
+<script>
+  async function searchBooks() {
+    const q = document.getElementById('book-search-input').value.trim();
+    if (!q) return;
+    const resultsEl = document.getElementById('search-results');
+    resultsEl.innerHTML = '<p class="searching">Searching… 🔍</p>';
+    resultsEl.style.display = 'block';
+
+    const res = await fetch(`/bookshelf/search?q=${encodeURIComponent(q)}`);
+    const data = await res.json();
+
+    if (!data.results.length) {
+      resultsEl.innerHTML = '<p class="empty-msg">No results found. Try a different search!</p>';
+      return;
+    }
+
+    resultsEl.innerHTML = data.results.map(r => `
+      <div class="search-result-item" onclick="selectBook(${JSON.stringify(r).replace(/"/g,'&quot;')})">
+        ${r.cover_url ? `<img src="${r.cover_url}" class="result-cover" />` : '<div class="result-cover-placeholder">📖</div>'}
+        <div>
+          <strong>${r.title}</strong><br/>
+          <small>${r.author}</small>
+        </div>
+      </div>
+    `).join('');
+  }
+
+  function selectBook(book) {
+    document.getElementById('f-ol-key').value = book.key || '';
+    document.getElementById('f-title').value = book.title || '';
+    document.getElementById('f-author').value = book.author || '';
+    document.getElementById('f-cover-url').value = book.cover_url || '';
+    document.getElementById('search-results').style.display = 'none';
+    document.getElementById('book-search-input').value = '';
+    document.getElementById('add-book-form').scrollIntoView({behavior: 'smooth'});
+  }
+
+  // Allow pressing Enter to search
+  document.getElementById('book-search-input').addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') { e.preventDefault(); searchBooks(); }
+  });
+</script>
+{% endblock %}

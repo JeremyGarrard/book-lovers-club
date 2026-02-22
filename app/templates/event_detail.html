@@ -1,0 +1,77 @@
+{% extends "base.html" %}
+{% block title %}{{ event.title }} — Book Lovers Club{% endblock %}
+
+{% block content %}
+<section class="page-hero section-lavender">
+  <div class="container">
+    <a href="/events" class="back-link">← All Events</a>
+    <h1 class="page-title">{{ event.title }}</h1>
+    <div class="event-meta">
+      <span>📅 {{ event.date }}{% if event.time %} at {{ event.time }}{% endif %}</span>
+      {% if event.location %}<span>📍 {{ event.location }}</span>{% endif %}
+      {% if event.book_theme %}<span>📖 {{ event.book_theme }}</span>{% endif %}
+    </div>
+  </div>
+</section>
+
+<section class="section">
+  <div class="container two-col">
+
+    <!-- Left: Description + RSVP -->
+    <div class="col-main">
+      {% if event.description %}
+        <div class="card">
+          <h2 class="card-title">About this Meet</h2>
+          <p>{{ event.description }}</p>
+        </div>
+      {% endif %}
+
+      <div class="card rsvp-card">
+        <h2 class="card-title">📋 RSVPs</h2>
+        <p class="rsvp-count"><strong>{{ rsvp_count }}</strong> member{{ 's' if rsvp_count != 1 }} going!</p>
+        {% if user %}
+          <form method="post" action="/events/{{ event.id }}/rsvp">
+            <button type="submit" class="btn {% if user_rsvped %}btn-danger{% else %}btn-primary{% endif %}">
+              {% if user_rsvped %}❌ Cancel RSVP{% else %}✅ I'm Going!{% endif %}
+            </button>
+          </form>
+        {% else %}
+          <a href="/login" class="btn btn-outline">Log in to RSVP</a>
+        {% endif %}
+      </div>
+    </div>
+
+    <!-- Right: Comments -->
+    <div class="col-side">
+      <div class="card">
+        <h2 class="card-title">💬 Discussion</h2>
+        {% if comments %}
+          <div class="comment-list">
+            {% for comment in comments %}
+              <div class="comment">
+                <div class="comment-header">
+                  <span class="comment-author">{{ comment.user.username }}</span>
+                  <span class="comment-date">{{ comment.created_at.strftime('%b %d') }}</span>
+                </div>
+                <p class="comment-body">{{ comment.content }}</p>
+              </div>
+            {% endfor %}
+          </div>
+        {% else %}
+          <p class="empty-msg">No comments yet — be the first! 🌸</p>
+        {% endif %}
+
+        {% if user %}
+          <form method="post" action="/events/{{ event.id }}/comment" class="comment-form">
+            <textarea name="content" placeholder="Share your thoughts..." class="textarea" rows="3" required></textarea>
+            <button type="submit" class="btn btn-primary">Post Comment 💬</button>
+          </form>
+        {% else %}
+          <a href="/login" class="btn btn-outline mt-1">Log in to comment</a>
+        {% endif %}
+      </div>
+    </div>
+
+  </div>
+</section>
+{% endblock %}

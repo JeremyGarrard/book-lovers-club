@@ -1,0 +1,56 @@
+{% extends "base.html" %}
+{% block title %}Events — Pittsburgh Book Lovers Club{% endblock %}
+
+{% block content %}
+<section class="page-hero section-mint">
+  <div class="container">
+    <h1 class="page-title">📅 Club Events</h1>
+    <p class="page-sub">Come as you are, bring the book you've been reading!</p>
+  </div>
+</section>
+
+<section class="section">
+  <div class="container">
+    <h2 class="section-title">Upcoming Meets 🌸</h2>
+    {% if upcoming %}
+      <div class="event-list">
+        {% for event in upcoming %}
+          <a href="/events/{{ event.id }}" class="event-row">
+            <div class="event-row-date">
+              <span class="date-month">{{ event.date[5:7] | int | string | replace('1','Jan') | replace('2','Feb') | replace('3','Mar') | replace('4','Apr') | replace('5','May') | replace('6','Jun') | replace('7','Jul') | replace('8','Aug') | replace('9','Sep') }}</span>
+              <span class="date-day">{{ event.date[8:10] | int }}</span>
+            </div>
+            <div class="event-row-info">
+              <h3>{{ event.title }}</h3>
+              {% if event.book_theme %}<p class="theme-tag">📖 {{ event.book_theme }}</p>{% endif %}
+              {% if event.location %}<p class="loc-tag">📍 {{ event.location }}</p>{% endif %}
+              {% if event.time %}<p class="time-tag">🕐 {{ event.time }}</p>{% endif %}
+            </div>
+            <div class="event-row-arrow">→</div>
+          </a>
+        {% endfor %}
+      </div>
+    {% else %}
+      <p class="empty-msg">No upcoming events yet. Check back soon! 🌿</p>
+    {% endif %}
+
+    {% if past %}
+      <h2 class="section-title mt-3">Past Meets 📜</h2>
+      <div class="event-list past">
+        {% for event in past %}
+          <a href="/events/{{ event.id }}" class="event-row faded">
+            <div class="event-row-date">
+              <span class="date-day-sm">{{ event.date }}</span>
+            </div>
+            <div class="event-row-info">
+              <h3>{{ event.title }}</h3>
+              {% if event.book_theme %}<p class="theme-tag">📖 {{ event.book_theme }}</p>{% endif %}
+            </div>
+            <div class="event-row-arrow">→</div>
+          </a>
+        {% endfor %}
+      </div>
+    {% endif %}
+  </div>
+</section>
+{% endblock %}

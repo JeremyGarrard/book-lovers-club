@@ -1,0 +1,138 @@
+{% extends "base.html" %}
+{% block title %}Pittsburgh Book Lovers Club 📚🌸{% endblock %}
+
+{% block content %}
+
+<!-- ── Hero ─────────────────────────────────────────────────────────── -->
+<section class="hero">
+  <div class="hero-inner">
+    <div class="hero-badge">🌸 Pittsburgh, PA 🌸</div>
+    <h1 class="hero-title">The Book Lovers Club</h1>
+    <p class="hero-sub">
+      We each read <em>our own</em> book — then gather to share, spill, and swap!<br/>
+      Good books. Good people. Great snacks. ☕🍪
+    </p>
+    <div class="hero-ctas">
+      <a href="/events" class="btn btn-primary btn-big">See Upcoming Events 🗓️</a>
+      <a href="/bookshelf" class="btn btn-outline btn-big">Community Bookshelf 📚</a>
+    </div>
+    <div class="hero-deco">🌻 · 📖 · 🌷 · ✨ · 🍃</div>
+  </div>
+</section>
+
+<!-- ── Upcoming Events Preview ───────────────────────────────────────── -->
+<section class="section section-mint">
+  <div class="container">
+    <h2 class="section-title">📅 Upcoming Meets</h2>
+    {% if upcoming_events %}
+      <div class="card-grid">
+        {% for event in upcoming_events %}
+          <a href="/events/{{ event.id }}" class="event-card">
+            <div class="event-card-date">{{ event.date }}</div>
+            <h3 class="event-card-title">{{ event.title }}</h3>
+            {% if event.book_theme %}
+              <p class="event-card-theme">📖 {{ event.book_theme }}</p>
+            {% endif %}
+            {% if event.location %}
+              <p class="event-card-loc">📍 {{ event.location }}</p>
+            {% endif %}
+          </a>
+        {% endfor %}
+      </div>
+      <div class="text-center mt-2">
+        <a href="/events" class="btn btn-outline">View all events →</a>
+      </div>
+    {% else %}
+      <p class="empty-msg">Nothing scheduled yet — check back soon! 🌿</p>
+    {% endif %}
+  </div>
+</section>
+
+<!-- ── How It Works ──────────────────────────────────────────────────── -->
+<section class="section section-yellow">
+  <div class="container">
+    <h2 class="section-title">✨ How It Works</h2>
+    <div class="how-grid">
+      <div class="how-card">
+        <div class="how-icon">📖</div>
+        <h3>Read Your Book</h3>
+        <p>Pick anything — fiction, memoir, sci-fi, a trashy romance. No judgment here!</p>
+      </div>
+      <div class="how-card">
+        <div class="how-icon">🗓️</div>
+        <h3>Come to a Meet</h3>
+        <p>We gather monthly at local spots around Pittsburgh to chat and share.</p>
+      </div>
+      <div class="how-card">
+        <div class="how-icon">💬</div>
+        <h3>Share the Vibes</h3>
+        <p>Tell us about your book, give it a dramatic reading, or just enjoy the snacks.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── Bookshelf Teaser ──────────────────────────────────────────────── -->
+<section class="section section-lavender">
+  <div class="container">
+    <h2 class="section-title">📚 What We're Reading</h2>
+    <p class="section-sub">Check out what the club is currently into.</p>
+    <a href="/bookshelf" class="btn btn-primary">Browse the Bookshelf →</a>
+  </div>
+</section>
+
+<!-- ── Mailing List Signup ───────────────────────────────────────────── -->
+<section class="section section-peach">
+  <div class="container signup-section">
+    <h2 class="section-title">💌 Stay in the Loop</h2>
+    <p class="section-sub">Get event announcements and book recs right in your inbox.</p>
+    <form id="signup-form" class="signup-form">
+      <input
+        type="email"
+        id="signup-email"
+        placeholder="your@email.com"
+        class="input-field"
+        required
+      />
+      <button type="submit" class="btn btn-primary">Subscribe 🌸</button>
+    </form>
+    <p id="signup-msg" class="signup-msg" style="display:none;"></p>
+  </div>
+</section>
+
+<!-- ── Shop Teaser ───────────────────────────────────────────────────── -->
+<section class="section section-mint">
+  <div class="container text-center">
+    <h2 class="section-title">🛍️ Rep the Club</h2>
+    <p class="section-sub">Totes, mugs, tees — all the bookish merch your heart desires.</p>
+    <a href="/shop" class="btn btn-primary btn-big">Visit the Shop →</a>
+  </div>
+</section>
+
+{% endblock %}
+
+{% block scripts %}
+<script>
+  document.getElementById('signup-form').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const email = document.getElementById('signup-email').value;
+    const msgEl = document.getElementById('signup-msg');
+    try {
+      const res = await fetch('/signup', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({email}),
+      });
+      const data = await res.json();
+      msgEl.textContent = data.message;
+      msgEl.className = 'signup-msg ' + (data.ok ? 'success' : 'error');
+      msgEl.style.display = 'block';
+      if (data.ok) document.getElementById('signup-email').value = '';
+    } catch {
+      msgEl.textContent = 'Something went wrong. Try again!';
+      msgEl.className = 'signup-msg error';
+      msgEl.style.display = 'block';
+    }
+  });
+</script>
+{% endblock %}

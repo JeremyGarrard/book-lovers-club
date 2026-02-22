@@ -1,0 +1,59 @@
+{% extends "base.html" %}
+{% block title %}Shop — Pittsburgh Book Lovers Club{% endblock %}
+
+{% block content %}
+<section class="page-hero section-peach">
+  <div class="container text-center">
+    <h1 class="page-title">🛍️ Club Merch</h1>
+    <p class="page-sub">Wear your love for books out in the world!</p>
+  </div>
+</section>
+
+<section class="section">
+  <div class="container text-center">
+    <div class="shop-hero-card card">
+      <div class="shop-emoji-row">📚 ☕ 🌸 📖 ✨ 🌷</div>
+      <h2>Pittsburgh Book Lovers Club</h2>
+      <p class="section-sub">
+        Totes, tees, mugs, and more — all custom-designed just for our bookish crew.<br/>
+        Ordered through Custom Ink, ships right to you.
+      </p>
+
+      {% if custom_ink_url %}
+        <a href="{{ custom_ink_url }}" target="_blank" rel="noopener noreferrer" class="btn btn-primary btn-big">
+          Shop on Custom Ink →
+        </a>
+      {% else %}
+        <div class="coming-soon-box">
+          <p>🚧 The shop is coming soon!</p>
+          <p>Sign up for our mailing list to be the first to know when it launches.</p>
+          <a href="/#signup" class="btn btn-outline">Get Notified 💌</a>
+        </div>
+      {% endif %}
+    </div>
+
+    <div class="merch-items">
+      <div class="merch-item">
+        <div class="merch-icon">👜</div>
+        <h3>Tote Bags</h3>
+        <p>Perfect for hauling your library haul.</p>
+      </div>
+      <div class="merch-item">
+        <div class="merch-icon">☕</div>
+        <h3>Mugs</h3>
+        <p>For the reading + coffee combo we all live by.</p>
+      </div>
+      <div class="merch-item">
+        <div class="merch-icon">👕</div>
+        <h3>T-Shirts</h3>
+        <p>Soft tees you'll want to live in.</p>
+      </div>
+      <div class="merch-item">
+        <div class="merch-icon">📔</div>
+        <h3>Notebooks</h3>
+        <p>Write your reviews, your thoughts, your next novel.</p>
+      </div>
+    </div>
+  </div>
+</section>
+{% endblock %}
