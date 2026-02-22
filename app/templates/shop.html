@@ -25,10 +25,15 @@
         </a>
       {% else %}
         <div class="coming-soon-box">
-          <p>🚧 The shop is coming soon!</p>
-          <p>Sign up for our mailing list to be the first to know when it launches.</p>
-          <a href="/#signup" class="btn btn-outline">Get Notified 💌</a>
+          <p style="font-size:1.1rem;font-weight:800;margin-bottom:.5rem;">🎉 Merch dropping soon!</p>
+          <p>We're putting the finishing touches on our Custom Ink store. Totes, tees, mugs — all the bookish gear. Be the first to know when it's live!</p>
+          <a href="javascript:void(0)" onclick="document.getElementById('notify-email').focus(); window.scrollTo({top:0,behavior:'smooth'});" class="btn btn-primary" style="margin-top:.75rem;">Notify Me 💌</a>
         </div>
+        <form id="shop-signup-form" style="margin-top:1rem;display:flex;gap:.5rem;justify-content:center;flex-wrap:wrap;">
+          <input type="email" id="notify-email" placeholder="your@email.com" class="input-field" style="max-width:260px;" />
+          <button type="submit" class="btn btn-outline">Join the Waitlist</button>
+        </form>
+        <p id="shop-signup-msg" style="display:none;margin-top:.5rem;font-weight:700;"></p>
       {% endif %}
     </div>
 
@@ -56,4 +61,33 @@
     </div>
   </div>
 </section>
+{% endblock %}
+
+{% block scripts %}
+<script>
+  const form = document.getElementById('shop-signup-form');
+  if (form) {
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const email = document.getElementById('notify-email').value;
+      const msgEl = document.getElementById('shop-signup-msg');
+      try {
+        const res = await fetch('/signup', {
+          method: 'POST',
+          headers: {'Content-Type': 'application/json'},
+          body: JSON.stringify({email}),
+        });
+        const data = await res.json();
+        msgEl.textContent = data.message;
+        msgEl.style.color = data.ok ? '#2a6040' : '#a03030';
+        msgEl.style.display = 'block';
+        if (data.ok) document.getElementById('notify-email').value = '';
+      } catch {
+        msgEl.textContent = 'Something went wrong — try again!';
+        msgEl.style.color = '#a03030';
+        msgEl.style.display = 'block';
+      }
+    });
+  }
+</script>
 {% endblock %}
